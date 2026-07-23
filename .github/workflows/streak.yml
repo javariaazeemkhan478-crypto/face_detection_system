@@ -1,0 +1,33 @@
+name: Continuous Green Dot Streak
+
+on:
+  schedule:
+    # Runs at 12:00 PM UTC every day
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  auto_commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Make a subtle change
+        run: |
+          mkdir -p .github
+          echo "$(date)" > .github/.streak_keepalive.txt
+          git add .github/.streak_keepalive.txt
+
+      - name: Commit and Push
+        run: |
+          git commit -m "chore: automated streak maintenance [skip ci]" || echo "No changes to commit"
+          git push origin main
